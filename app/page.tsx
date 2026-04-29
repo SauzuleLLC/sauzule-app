@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { SauzuleLogo } from '@/components/ui/SauzuleLogo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -30,10 +29,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4"
          style={{ background: 'radial-gradient(ellipse at center, #0d0b07 0%, #080808 70%)' }}>
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <SauzuleLogo size={56} />
-          <h1 className="serif text-3xl mt-4" style={{ color: 'var(--gold)', letterSpacing: '4px' }}>
+          <h1 className="serif text-3xl" style={{ color: 'var(--gold)', letterSpacing: '4px' }}>
             SAUZULE
           </h1>
           <p className="text-xs mt-1" style={{ color: 'var(--muted)', letterSpacing: '2px' }}>
@@ -41,7 +38,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Card */}
         <div className="rounded-xl p-8" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <h2 className="serif text-xl mb-6" style={{ color: 'var(--txt)' }}>Welcome back</h2>
           
@@ -69,7 +65,7 @@ export default function LoginPage() {
                 onChange={e => setPassword(e.target.value)}
                 required
                 className="w-full px-3 py-2.5 text-sm rounded-md"
-                placeholder="••••••••"
+                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
               />
             </div>
 
@@ -87,13 +83,13 @@ export default function LoginPage() {
                 cursor: loading ? 'not-allowed' : 'pointer',
               }}
             >
-              {loading ? 'Signing in…' : 'Sign In'}
+              {loading ? 'Signing in\u2026' : 'Sign In'}
             </button>
           </form>
         </div>
 
         <p className="text-center text-xs mt-6" style={{ color: 'var(--muted)' }}>
-          Sauzule LLC · Premium Nutrition Coaching
+          Sauzule LLC \u00b7 Premium Nutrition Coaching
         </p>
       </div>
     </div>
