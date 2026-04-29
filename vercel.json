@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/sunday-reset",
+      "schedule": "0 12 * * 0"
+    }
+  ]
+}

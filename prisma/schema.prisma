@@ -1,0 +1,334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── COACH ────────────────────────────────────────────────────────────────────
+model Coach {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  passwordHash    String
+  stripeAccountId String?   // Stripe Connect account
+  amazonTag       String    @default("sauzule-20")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  clients         Client[]
+  pricingPlans    PricingPlan[]
+  supplementStacks SupplementStack[]
+}
+
+// ─── PRICING PLANS (coach sets these) ─────────────────────────────────────────
+model PricingPlan {
+  id              String    @id @default(cuid())
+  coachId         String
+  name            String    // "Starter" | "Standard" | "Elite"
+  priceMonthly    Int       // cents (e.g. 5900 = $59)
+  stripePriceId   String?   // Stripe Price ID
+  features        String[]  // list of included features
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  coach           Coach     @relation(fields: [coachId], references: [id])
+  subscriptions   ClientSubscription[]
+}
+
+// ─── CLIENT ───────────────────────────────────────────────────────────────────
+model Client {
+  id              String    @id @default(cuid())
+  coachId         String
+  email           String
+  name            String
+  phone           String?
+  stripeCustomerId String?
+  inviteToken     String?   @unique  // for email invite link
+  inviteAccepted  Boolean   @default(false)
+  passwordHash    String?   // set during invite acceptance
+  
+  // Goals & profile
+  goal            Goal      @default(FAT_LOSS)
+  activityLevel   ActivityLevel @default(MODERATE)
+  dietType        DietType  @default(HIGH_PROTEIN)
+  currentWeight   Float?    // lbs
+  targetWeight    Float?    // lbs
+  heightInches    Int?
+  age             Int?
+  sex             Sex       @default(MALE)
+  
+  // Calculated by AI
+  tdee            Int?      // Total Daily Energy Expenditure
+  targetCalories  Int?
+  targetProtein   Int?      // grams
+  targetCarbs     Int?
+  targetFat       Int?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  coach           Coach     @relation(fields: [coachId], references: [id])
+  subscription    ClientSubscription?
+  foodPreferences FoodPreference[]
+  mealPlans       MealPlan[]
+  fastFoodLogs    FastFoodLog[]
+  sundayCheckIns  SundayCheckIn[]
+  foodSwaps       FoodSwap[]
+}
+
+enum Goal {
+  FAT_LOSS
+  MUSCLE_GAIN
+  MAINTENANCE
+  ATHLETIC_PERFORMANCE
+  RECOMPOSITION
+}
+
+enum ActivityLevel {
+  SEDENTARY      // 1.2x
+  LIGHT          // 1.375x
+  MODERATE       // 1.55x
+  VERY_ACTIVE    // 1.725x
+  ATHLETE        // 1.9x
+}
+
+enum DietType {
+  HIGH_PROTEIN
+  BALANCED
+  LOW_CARB
+  KETO
+  MEDITERRANEAN
+  VEGAN
+  VEGETARIAN
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+// ─── CLIENT SUBSCRIPTION ──────────────────────────────────────────────────────
+model ClientSubscription {
+  id                    String    @id @default(cuid())
+  clientId              String    @unique
+  planId                String
+  stripeSubscriptionId  String?   @unique
+  status                SubscriptionStatus @default(TRIAL)
+  trialEndsAt           DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  client                Client    @relation(fields: [clientId], references: [id])
+  plan                  PricingPlan @relation(fields: [planId], references: [id])
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  PAUSED
+  CANCELED
+}
+
+// ─── FOOD PREFERENCES ─────────────────────────────────────────────────────────
+model FoodPreference {
+  id        String          @id @default(cuid())
+  clientId  String
+  foodName  String
+  foodId    String?         // USDA FoodData ID
+  category  FoodCategory
+  pref      FoodPref
+  createdAt DateTime        @default(now())
+
+  client    Client @relation(fields: [clientId], references: [id])
+
+  @@unique([clientId, foodName])
+}
+
+enum FoodCategory {
+  PROTEIN
+  CARB
+  FAT
+  VEGETABLE
+  FRUIT
+  DAIRY
+  OTHER
+}
+
+enum FoodPref {
+  LOVE
+  LIKE
+  DISLIKE
+  ALLERGIC
+}
+
+// ─── MEAL PLANS ───────────────────────────────────────────────────────────────
+model MealPlan {
+  id              String      @id @default(cuid())
+  clientId        String
+  weekStartDate   DateTime    // Always a Monday
+  status          PlanStatus  @default(PENDING_APPROVAL)
+  approvedAt      DateTime?
+  approvedByCoach Boolean     @default(false)
+  notes           String?
+  
+  // AI generation metadata
+  generatedByAI   Boolean     @default(true)
+  aiModel         String?     // e.g. "claude-3-5-haiku"
+  generationPrompt String?
+  
+  // Aggregate macros
+  avgCalories     Int?
+  avgProtein      Int?
+  avgCarbs        Int?
+  avgFat          Int?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  client          Client      @relation(fields: [clientId], references: [id])
+  days            MealPlanDay[]
+}
+
+enum PlanStatus {
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  ARCHIVED
+}
+
+model MealPlanDay {
+  id          String    @id @default(cuid())
+  mealPlanId  String
+  dayOfWeek   Int       // 0=Mon, 6=Sun
+  date        DateTime
+
+  meals       Meal[]
+
+  mealPlan    MealPlan  @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+}
+
+model Meal {
+  id              String    @id @default(cuid())
+  dayId           String
+  mealType        MealType
+  name            String    // e.g. "Grilled Chicken & Brown Rice"
+  description     String?
+  servingSize     String?
+  calories        Int
+  protein         Float
+  carbs           Float
+  fat             Float
+  ingredients     String[]  // list of ingredient strings
+  prepTime        Int?      // minutes
+  isSwappable     Boolean   @default(true)
+
+  day             MealPlanDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK_1
+  SNACK_2
+}
+
+// ─── FOOD SWAPS ───────────────────────────────────────────────────────────────
+model FoodSwap {
+  id          String    @id @default(cuid())
+  clientId    String
+  mealId      String?
+  originalFood String
+  swappedFood  String
+  reason      String?   // "client_preference" | "coach_override"
+  swapCount   Int       @default(1)
+  isPermanent Boolean   @default(false)  // after 3 swaps, suggest permanent
+  createdAt   DateTime  @default(now())
+
+  client      Client    @relation(fields: [clientId], references: [id])
+}
+
+// ─── FAST FOOD LOGS ───────────────────────────────────────────────────────────
+model FastFoodLog {
+  id          String    @id @default(cuid())
+  clientId    String
+  loggedAt    DateTime  @default(now())
+  restaurant  String    // "McDonald's"
+  itemName    String    // "Grilled Chicken Sandwich"
+  calories    Int
+  protein     Float
+  carbs       Float
+  fat         Float
+  isHealthy   Boolean   @default(false)
+  
+  // AI compensation
+  compensationApplied Boolean @default(true)
+  remainingCalories   Int?    // adjusted remaining for the day
+
+  client      Client    @relation(fields: [clientId], references: [id])
+}
+
+// ─── SUNDAY CHECK-INS ─────────────────────────────────────────────────────────
+model SundayCheckIn {
+  id              String    @id @default(cuid())
+  clientId        String
+  weekDate        DateTime  // The Sunday date
+  
+  // 5-question responses
+  adherenceRating Int       // 1-5 (1=struggled, 5=perfect)
+  energyRating    Int       // 1-5
+  trainingSessions Int      // 0-7 sessions
+  foodSwapRequest String?   // e.g. "chicken -> beef"
+  weightChange    Float?    // lbs, negative = lost
+  
+  // AI generated notes
+  aiAdjustment    String?   // what the AI changed for next week
+  newPlanId       String?   // linked to new MealPlan
+
+  submittedAt     DateTime  @default(now())
+  autoRenewed     Boolean   @default(false)  // true if client didn't respond
+
+  client          Client    @relation(fields: [clientId], references: [id])
+}
+
+// ─── SUPPLEMENT STACKS ────────────────────────────────────────────────────────
+model SupplementStack {
+  id          String    @id @default(cuid())
+  coachId     String
+  goal        Goal
+  name        String
+  priority    SupplementPriority
+  dosage      String
+  timing      String
+  benefits    String
+  amazonUrl   String    // affiliate link with sauzule-20 tag
+  asin        String?   // Amazon ASIN for direct linking
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  coach       Coach     @relation(fields: [coachId], references: [id])
+}
+
+enum SupplementPriority {
+  ESSENTIAL
+  RECOMMENDED
+  OPTIONAL
+}
+
+// ─── AMAZON AFFILIATE CLICKS ──────────────────────────────────────────────────
+model AffiliateClick {
+  id            String    @id @default(cuid())
+  clientId      String?
+  supplementId  String?
+  amazonUrl     String
+  clickedAt     DateTime  @default(now())
+  userAgent     String?
+}

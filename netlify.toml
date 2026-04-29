@@ -1,0 +1,29 @@
+[build]
+  command = "npx prisma generate && npx prisma db push --accept-data-loss && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Sunday reset cron — runs every Sunday at noon UTC (7 AM EST)
+[functions]
+  directory = "netlify/functions"
+
+[[crons]]
+  function = "sunday-reset-cron"
+  schedule = "0 12 * * 0"
+
+# Redirect root to app dashboard (if you want app.sauzule.com to auto-redirect)
+[[redirects]]
+  from = "/"
+  to = "/dashboard"
+  status = 302
+  conditions = {Cookie = ["next-auth.session-token"]}
+
+[dev]
+  command = "npm run dev"
+  port = 3000
