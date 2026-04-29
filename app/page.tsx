@@ -14,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const res = await signIn('credentials', {
+    const res = await signIn('coach-login', {
       email, password, redirect: false,
     })
     if (res?.ok) {
