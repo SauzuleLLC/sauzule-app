@@ -50,7 +50,6 @@ export default function ClientLoginPage() {
                 background: '#111',
                 border: '1px solid #222',
                 color: '#e8e0d0',
-                focusRingColor: '#b8985a',
               }}
               placeholder="your@email.com"
             />
@@ -67,7 +66,7 @@ export default function ClientLoginPage() {
               required
               className="w-full px-4 py-3 rounded text-sm outline-none"
               style={{ background: '#111', border: '1px solid #222', color: '#e8e0d0' }}
-              placeholder="••••••••"
+              placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
             />
           </div>
 
@@ -81,7 +80,7 @@ export default function ClientLoginPage() {
             className="w-full py-3 rounded font-semibold text-sm tracking-wider uppercase transition-opacity"
             style={{ background: '#b8985a', color: '#080808', opacity: loading ? 0.6 : 1 }}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing inâ¦' : 'Sign In'}
           </button>
         </form>
 
