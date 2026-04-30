@@ -10,7 +10,7 @@ interface Profile {
   targetWeight: number
   dailyCalories: number
   proteinGrams: number
-  carbGrams: number
+  carbGrams: numberh
   fatGrams: number
   name?: string
 }
@@ -207,8 +207,8 @@ function HabitChecklist({ habits, onChange }: { habits: boolean[]; onChange: (i:
 }
 
 const QUICK_ACTIONS = [
-  { label: 'Meals', icon: '🥗', href: '/client/meals' },
-  { label: 'Workout', icon: '🏋️', href: '/client/workout' },
+  { label: 'Meals', icon: '🥗', href: '/client/meal-plan' },
+  { label: 'Workout', icon: '🏋️', href: '/client/exercise' },
   { label: 'Fast Food', icon: '🍔', href: '/client/fast-food' },
   { label: 'Grocery', icon: '🛒', href: '/client/grocery' },
   { label: 'Supplements', icon: '💊', href: '/client/supplements' },
