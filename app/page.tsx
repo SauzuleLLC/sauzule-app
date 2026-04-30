@@ -5,27 +5,52 @@ export default function HomePage() {
     <div className="min-h-screen" style={{ background: 'radial-gradient(ellipse at center, #0d0b07 0%, #080808 70%)', color: 'var(--txt)' }}>
 
       {/* Nav */}
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 48px', borderBottom: '1px solid var(--border)' }}>
+      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 48px', borderBottom: '1px solid var(--border)' }}>
         <h1 className="serif" style={{ color: 'var(--gold)', letterSpacing: '4px', fontSize: '20px', margin: 0 }}>SAUZULE</h1>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <Link href="/client" style={{ color: 'var(--muted)', fontSize: '12px', textDecoration: 'none', letterSpacing: '1px' }}>Client Login</Link>
-          <Link href="/login" style={{ color: 'var(--gold)', fontSize: '12px', textDecoration: 'none', letterSpacing: '1px', border: '1px solid var(--gold)', padding: '8px 20px', borderRadius: '4px' }}>Coach Portal</Link>
-        </div>
+        <Link href="/login" style={{ color: 'var(--muted)', fontSize: '12px', textDecoration: 'none', letterSpacing: '1px' }}>Coach Portal</Link>
       </nav>
 
-      {/* Hero */}
-      <section style={{ textAlign: 'center', padding: '100px 24px 80px' }}>
-        <p style={{ letterSpacing: '4px', fontSize: '11px', color: 'var(--gold)', marginBottom: '24px' }}>PREMIUM NUTRITION COACHING</p>
-        <h2 className="serif" style={{ fontSize: '48px', fontWeight: 300, lineHeight: 1.2, marginBottom: '24px', letterSpacing: '2px' }}>
-          Transform Your Body.<br />Transform Your Life.
-        </h2>
-        <p style={{ fontSize: '15px', color: 'var(--muted)', maxWidth: '460px', margin: '0 auto 48px', lineHeight: 1.8 }}>
-          Personalized nutrition and fitness coaching designed around your goals,
-          your lifestyle, and your schedule.
-        </p>
-        <Link href="/signup" style={{ display: 'inline-block', background: 'var(--gold)', color: '#080808', padding: '14px 44px', fontSize: '12px', letterSpacing: '3px', textDecoration: 'none', fontWeight: 700, borderRadius: '4px' }}>
-          START YOUR JOURNEY
-        </Link>
+      {/* Hero - Split Layout */}
+      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', maxWidth: '1100px', margin: '0 auto', padding: '80px 48px', alignItems: 'center' }}>
+
+        {/* Left: Marketing */}
+        <div>
+          <p style={{ letterSpacing: '4px', fontSize: '11px', color: 'var(--gold)', marginBottom: '24px' }}>PREMIUM NUTRITION COACHING</p>
+          <h2 className="serif" style={{ fontSize: '48px', fontWeight: 300, lineHeight: 1.2, marginBottom: '24px', letterSpacing: '2px' }}>
+            Transform Your Body.<br />Transform Your Life.
+          </h2>
+          <p style={{ fontSize: '15px', color: 'var(--muted)', maxWidth: '420px', marginBottom: '40px', lineHeight: 1.8 }}>
+            Personalized nutrition and fitness coaching built around your goals, lifestyle, and schedule.
+          </p>
+          <Link href="/signup" style={{ display: 'inline-block', background: 'var(--gold)', color: '#080808', padding: '14px 44px', fontSize: '12px', letterSpacing: '3px', textDecoration: 'none', fontWeight: 700, borderRadius: '4px' }}>
+            START YOUR JOURNEY
+          </Link>
+        </div>
+
+        {/* Right: Client Portal Card */}
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '40px', borderTop: '3px solid var(--gold)' }}>
+          <p style={{ letterSpacing: '3px', fontSize: '10px', color: 'var(--gold)', marginBottom: '8px' }}>EXISTING CLIENTS</p>
+          <h3 className="serif" style={{ fontSize: '24px', fontWeight: 300, marginBottom: '8px', color: 'var(--txt)' }}>Client Portal</h3>
+          <p style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '28px', lineHeight: 1.6 }}>
+            Access your meal plan, workout program, grocery list, and weekly check-in.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+            {[
+              { icon: 'M', label: 'Custom Meal Plan' },
+              { icon: 'W', label: 'Exercise Program' },
+              { icon: 'C', label: 'Weekly Check-In' },
+              { icon: 'G', label: 'Grocery List' },
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px', color: 'var(--muted)' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--gold)', flexShrink: 0 }} />
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+          <Link href="/client" style={{ display: 'block', textAlign: 'center', background: 'var(--gold)', color: '#080808', padding: '14px', fontSize: '12px', letterSpacing: '2px', textDecoration: 'none', fontWeight: 700, borderRadius: '4px' }}>
+            ACCESS MY PORTAL
+          </Link>
+        </div>
       </section>
 
       {/* Features */}
@@ -40,20 +65,6 @@ export default function HomePage() {
             <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.7 }}>{f.desc}</p>
           </div>
         ))}
-      </section>
-
-      {/* CTA */}
-      <section style={{ textAlign: 'center', padding: '60px 24px 100px' }}>
-        <h2 className="serif" style={{ fontSize: '32px', fontWeight: 300, marginBottom: '16px' }}>Ready to start?</h2>
-        <p style={{ color: 'var(--muted)', marginBottom: '40px', fontSize: '14px' }}>Already a client? Log in to your portal below.</p>
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/signup" style={{ display: 'inline-block', background: 'var(--gold)', color: '#080808', padding: '13px 36px', fontSize: '12px', letterSpacing: '2px', textDecoration: 'none', fontWeight: 700, borderRadius: '4px' }}>
-            APPLY NOW
-          </Link>
-          <Link href="/client" style={{ display: 'inline-block', border: '1px solid var(--border)', color: 'var(--muted)', padding: '13px 36px', fontSize: '12px', letterSpacing: '2px', textDecoration: 'none', borderRadius: '4px' }}>
-            CLIENT LOGIN
-          </Link>
-        </div>
       </section>
 
       {/* Footer */}
